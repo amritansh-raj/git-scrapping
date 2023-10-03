@@ -1,35 +1,26 @@
-from bs4 import BeautifulSoup
 import requests
+from bs4 import BeautifulSoup
 
-url = 'https://gitlab.com/'
-login_url = 'https://gitlab.com/users/sign_in'
+url = 'https://github.com/search?q=keyword&type=searchfor'
 
-headers = {'User-Agent': 'Mozilla/5.0'}
+keyword = input("Enter keyword to search for : ")
 
-response = requests.get(url)
-response2 = requests.get(login_url, headers=headers)
-
-if response.status_code == 200:
-    soup = BeautifulSoup(response.text, 'html.parser')
-    h1_tags = soup.find_all('h1')  
-    if h1_tags:
-        print("H1 tags found on the page:")
-        for h1_tag in h1_tags:
-            print(h1_tag.text)
+while True:
+    searchfor = input("Enter what you are searching for (users/repositories): ")
+    if searchfor in ['users', 'repositories']:
+        break
     else:
-        print("No H1 tags found on the page.")
-else:
-    print(f"Failed to fetch the webpage. Status code: {response.status_code}")
+        print("Invalid input. Please enter 'users' or 'repositories'.")
 
+new_url = url.replace("keyword", keyword).replace("searchfor", searchfor)
 
-if response2.status_code == 200:
-    soup = BeautifulSoup(response2.text, 'html.parser')
-    label_tags = soup.find_all('label')  
-    if label_tags:
-        print("label tags found on the page:")
-        for label_tag in label_tags:
-            print(label_tag.text)
-    else:
-        print("No label tags found on the page.")
-else:
-    print(f"Failed to fetch the login page. Status code: {response.status_code}")
+response = requests.get(new_url)
+
+soup = BeautifulSoup(response.text, 'html.parser')
+
+divs = soup.find_all('div', class_='Box-sc-g0xbh4-0 bBwPjs search-title')
+
+for div in divs:
+    spans = div.find_all('span')
+    for span in spans:
+        print(span.text)
